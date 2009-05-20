@@ -16,6 +16,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 from btmux_maplib.exceptions import *
+from btmux_maplib.constants import TERRAIN_NAMES
 
 class MuxMap(object):
     """
@@ -140,6 +141,24 @@ class MuxMap(object):
         except IndexError:
             raise InvalidHex(x, y)
         
+    def get_hex_terrain_name(self, x, y, safe_formatted=False):
+        """
+        Returns the full text name for the terrain.
+        IE: Grassland, Mountain, etc.
+        
+        safe_formatted: (bool) When True, strip spaces and convert everything to
+        lowercase. This is useful for retrieving graphical tiles by filename
+        and other similar things.
+        """
+        terrain = self.get_hex_terrain(x, y)
+        terrain_name = TERRAIN_NAMES.get(terrain, "Unknown")
+        
+        if safe_formatted:
+            # Strip spaces and lowercase it.
+            terrain_name = terrain_name.lower().replace(' ','')
+            
+        return terrain_name
+        
     def get_hex_elevation(self, x, y):
         """
         Returns a hex's elevation given an X and Y value.
@@ -158,3 +177,56 @@ class MuxMap(object):
         """
         return (self.get_hex_terrain(x,y),
                 self.get_hex_elevation(x,y))
+    
+    def get_viewport(self, x, y, view_width, view_height):
+        """
+        Returns the upper left coordinates for a 'viewport' that
+        looks at only a portion of the map. This is similar to BTMux's tactical
+        map that only shows you hexes that are in your nearby vicinity.
+        
+        x: (int) The X coordinate that the viewport will center on.
+        y: (int) The Y coordinate that the viewport will center on.
+        view_width: (int) How wide the viewport should be (even number).
+        view_height: (int) How high the viewport should be (even number).
+        """
+        try:
+            # Do this for the purpose of checking hex validity.
+            self.terrain_list[y][x]
+        except IndexError:
+            raise InvalidHex(x, y)
+        
+        if view_width > self.get_map_width():
+            raise ViewportWidthTooBig()
+        if view_height > self.get_map_height():
+            raise ViewportHeightTooBig()
+        
+        half_w = view_width / 2
+        half_h = view_height / 2
+        
+        x_offset = 0
+        if x - half_w < 0:
+            print "* Overflowed X bounds: Negative"
+            x_offset = x - half_w
+        elif (x + half_w) > self.get_map_width():
+            print "* Overflowed X bounds: Positive"
+            x_offset = (self.get_map_width() - (x + half_w) - 1) * -1
+            
+        y_offset = 0
+        if y - half_h < 0:
+            print "* Overflowed Y bounds: Negative"
+            y_offset = y - half_w
+        elif (y + half_h) > self.get_map_height():
+            print "* Overflowed Y bounds: Positive"
+            y_offset = (self.get_map_height() - (y + half_h) - 1) * -1
+            
+        upper_x = x - x_offset - half_w
+        upper_y = y - y_offset - half_h
+        
+        #print "WIDTH", view_width
+        #print "HEIGHT", view_height
+        #print "X OFFSET", x_offset
+        #print "Y OFFSET", y_offset
+        #print "CENTER COORD", x, y
+        #print "UPPER COORD", upper_x, upper_y
+        
+        return (upper_x, upper_y)

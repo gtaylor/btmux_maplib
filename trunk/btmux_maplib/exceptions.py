@@ -32,6 +32,14 @@ class InvalidHex(Exception):
     def __str__(self):
         return repr("Hex out of bounds: %d,%d" % (self.hex_x, self.hex_y))
     
+class ViewportWidthTooBig(Exception):
+    def __str__(self):
+        return repr("The width of your viewport exceeds the map's width.")
+    
+class ViewportHeightTooBig(Exception):
+    def __str__(self):
+        return repr("The height of your viewport exceeds the map's width.")
+    
 class MapDimsNotSet(Exception):
     def __str__(self):
         return repr("Map dimensions have not been set yet.")
