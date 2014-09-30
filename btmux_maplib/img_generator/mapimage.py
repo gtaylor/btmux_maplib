@@ -1,28 +1,17 @@
 """
- BattletechMUX Map Library (btmux_maplib) 
- Copyright (C) 2008  Gregory Taylor
-
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""
-
-"""
 Map image generation classes.
 """
+
 import math
-import Image, ImageDraw
+import logging
+
+from PIL import Image, ImageDraw
+
 from btmux_maplib.img_generator import rgb_vals
 from btmux_maplib.img_generator.exceptions import InvalidImageMode
+
+logger = logging.getLogger(__name__)
+
 
 class MuxMapImage(object):
     """
@@ -32,6 +21,7 @@ class MuxMapImage(object):
     
     DO NOT USE THIS CLASS DIRECTLY!
     """
+
     # Reference to the MuxMap object to image.
     map = None
     # The PIL Image object.
@@ -40,12 +30,10 @@ class MuxMapImage(object):
     mode = "color"
     # Show some debug information.
     debug = True
-    
-    """
-    A lowercase list of valid imaging modes.
-     color: Standard color terrain/elevation map.
-     elevmap: Elevation only, looks grayscaled aside from water.
-    """
+
+    # A lowercase list of valid imaging modes.
+    # color: Standard color terrain/elevation map.
+    # elevmap: Elevation only, looks grayscaled aside from water.
     VALID_MODES = ["color", "elevmap"]
     
     def __init__(self, map):
@@ -55,6 +43,7 @@ class MuxMapImage(object):
         Args:
         * map: (MuxMap) The map object to create an image of.
         """
+
         self.map = map
         
     def set_mode(self, mode):
@@ -72,31 +61,31 @@ class MuxMapImage(object):
         for the image and re-size if necessary. Return the scaling multiplier
         used.
         """
+
         map_width = float(self.map_img.size[0])
         map_height = float(self.map_img.size[1])
         resize_mul = 1.0
         
-        if min_dimension != None and (map_width < min_dimension or map_height < min_dimension):
+        if min_dimension is not None and \
+                (map_width < min_dimension or map_height < min_dimension):
             # Determine the smallest side to bring up to our limit.
             smallest_dim = min(map_width, map_height)
             # Bicubic gives the best look when scaling up.
             resize_filter = Image.BICUBIC
             resize_mul = float(min_dimension) / smallest_dim
-            if self.debug:
-                print 'Under-sized, re-size needed: (%d/%d) = %f' % (min_dimension,
-                                                                     smallest_dim,
-                                                                     resize_mul)
+            logger.debug('Under-sized, re-size needed: (%d/%d) = %f',
+                         min_dimension, smallest_dim, resize_mul)
             self.resize_img(resize_mul, resize_filter)
-        elif max_dimension != None and (map_width > max_dimension or map_height > max_dimension):
+        elif max_dimension is not None and \
+                (map_width > max_dimension or map_height > max_dimension):
             # Determine the largest side to bring down to our limit.
             largest_dim = max(map_width, map_height)
             # Anti-aliasing looks best when scaling down.
             resize_filter = Image.ANTIALIAS
             resize_mul = float(max_dimension) / largest_dim
-            if self.debug:
-                print 'Over-sized, re-size needed: (%d/%d) = %f' % (max_dimension,
-                                                                    largest_dim,
-                                                                    resize_mul)
+
+            logger.debug('Over-sized, re-size needed: (%d/%d) = %f',
+                max_dimension, largest_dim, resize_mul)
             self.resize_img(resize_mul, resize_filter)
         else:
             if self.debug:
@@ -117,9 +106,9 @@ class MuxMapImage(object):
                                                 map_height * resize_mul)
 
         # Re-size the image with the appropriate size multiplier.     
-        self.map_img = self.map_img.resize((int(map_width * resize_mul),
-                                            int(map_height * resize_mul)), 
-                                            resize_filter)
+        self.map_img = self.map_img.resize(
+            (int(map_width * resize_mul), int(map_height * resize_mul)),
+            resize_filter)
 
     def render_hexes(self):
         """
@@ -169,7 +158,8 @@ class MuxMapImage(object):
         Saves the current map file in the specified PIL-supported format.
         """
         self.map_img.save(filename, format)
-        
+
+
 class PixelHexMapImage(MuxMapImage):
     """
     Renders the map's hexes at a one hex per pixel ratio. This does not look
@@ -192,12 +182,13 @@ class PixelHexMapImage(MuxMapImage):
             for x in range(0, map_width):
                 terrain = self.map.get_hex_terrain(x, y)
                 elev = self.map.get_hex_elevation(x, y)
-                self.map_img.putpixel((x,y), 
-                        self.get_terrain_rgb(terrain, elev))
+                rgb = self.get_terrain_rgb(terrain, elev)
+                self.map_img.putpixel((x, y), rgb)
                 
         if self.debug:
             print "Hex rendering completed."
-                
+
+
 class HexMapImage(MuxMapImage):
     """
     Renders the map's hexes as hexes. This is a lot more computationally
@@ -217,7 +208,7 @@ class HexMapImage(MuxMapImage):
     # Total height of the hex
     rect_a = 2 * hex_r
     # Color to paint the lines
-    line_color = (255,255,255)
+    line_color = (255, 255, 255)
     # These are populated by methods and are best left alone here.
     img_width = None
     img_height = None
@@ -230,7 +221,8 @@ class HexMapImage(MuxMapImage):
         Args:
         * map: (MuxMap) The map object to create an image of.
         """
-        self.map = map
+        super(HexMapImage, self).__init__(map)
+
         # Calculate how much image area is needed to render all of the hexes.
         self.img_width = self.map.get_map_width() * (self.rect_b - self.hex_h)
         self.img_height = (self.map.get_map_height() - 1) * self.rect_a 
@@ -244,10 +236,10 @@ class HexMapImage(MuxMapImage):
         width goes above the max or under the min size in pixels. You may
         specify one or both.
         """
+
         self.map_img = Image.new("RGB", (self.img_width, self.img_height))
-        if self.debug:
-            print "Image created with dimensions: %dx%d" % (self.map_img.size[0],
-                                                            self.map_img.size[1])
+        logger.debug("Image created with dimensions: %dx%d",
+                     self.map_img.size[0], self.map_img.size[1])
         self.draw = ImageDraw.Draw(self.map_img)
         self.render_hexes()
         
@@ -263,6 +255,7 @@ class HexMapImage(MuxMapImage):
         Calculates the upper left pixel of the box used to render a hex.
         All of the hex's points are based on offsets of this point.
         """
+
         # If this is an odd numbered hex, off-set it by half a hex height.
         if x % 2 == 0:
             # Even numbered row
@@ -273,14 +266,14 @@ class HexMapImage(MuxMapImage):
             
         # The x-coordinate remains constaint regardless of odd or even.
         x_pixel = x * (self.rect_b - self.hex_h)
-        
-        #print "%d,%x -> %f,%f" % (x, y, x_pixel, y_pixel)
-        return (x_pixel, y_pixel)
+
+        return x_pixel, y_pixel
             
     def draw_hex(self, x, y, terrain, elev):
         """
-        Draw the hex polgygon.
+        Draw the hex polygon.
         """
+
         # The upper left pixel from which the hex is based on
         upper_left = self.calc_upper_left_pixel(x, y)
         
@@ -303,33 +296,27 @@ class HexMapImage(MuxMapImage):
         hex_left_bend_xy = (upper_left[0], upper_left[1] - self.hex_r)
         hex_right_bend_xy = (upper_left[0] + self.rect_b, upper_left[1] - self.hex_r)
         
-        hex_point_list = [hex_uleft_xy, hex_uright_xy, 
-                          hex_right_bend_xy, 
-                          hex_lright_xy, hex_lleft_xy,
-                          hex_left_bend_xy]
-        #print hex_point_list
+        hex_point_list = [
+            hex_uleft_xy, hex_uright_xy,
+            hex_right_bend_xy,
+            hex_lright_xy, hex_lleft_xy,
+            hex_left_bend_xy
+        ]
         
-        # Draw the filled hex polgyon.
-        self.draw.polygon(hex_point_list,
-                  outline=self.line_color,
-                  fill=self.get_terrain_rgb(terrain, elev))
+        # Draw the filled hex polygon.
+        self.draw.polygon(
+            hex_point_list,
+            outline=self.line_color,
+            fill=self.get_terrain_rgb(terrain, elev))
     
     def render_hexes(self):
         """
         Over-rides the MuxMapImage stub routine to do our one pixel per hex
         rendering.
         """
-        if self.debug:
-            print "Rendering hexes..."
-            
-        # Shortcuts for readability.
-        map_width = self.map.get_map_width()
-        map_height = self.map.get_map_height()
         
         for y in range(0, self.map.get_map_width()):
             for x in range(0, self.map.get_map_height()):
                 terrain = self.map.get_hex_terrain(x, y)
                 elev = self.map.get_hex_elevation(x, y)
                 self.draw_hex(x, y, terrain, elev)
-        if self.debug:
-            print "Hex rendering completed."

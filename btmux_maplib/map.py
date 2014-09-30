@@ -1,22 +1,6 @@
-"""
- BattletechMUX Map Library (btmux_maplib) 
- Copyright (C) 2008  Gregory Taylor
-
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""
 from btmux_maplib.exceptions import *
 from btmux_maplib.constants import TERRAIN_NAMES
+
 
 class MuxMap(object):
     """
@@ -24,6 +8,7 @@ class MuxMap(object):
     data. It is advisable to either to push any code that does not fit into
     the 'raw map data' category into another class or sub-class.
     """
+
     # Dimensions tuple
     dimensions = None
     # List of hex terrain [y][x]
@@ -39,6 +24,7 @@ class MuxMap(object):
                 If none specified, you'll need to populate the map's data
                 structures by another means (a map parser).
         """
+
         self.clear_map()
         if dimensions:
             self.dimensions = dimensions
@@ -54,6 +40,7 @@ class MuxMap(object):
         """
         Re-sets the map to its original, empty state.
         """
+
         self.dimensions = None
         self.terrain_list = []
         self.elevation_list = []
@@ -62,6 +49,7 @@ class MuxMap(object):
         """
         Returns an (X,Y) tuple of the map's dimensions.
         """
+
         if not self.dimensions:
             raise MapDimsNotSet
         
@@ -83,18 +71,21 @@ class MuxMap(object):
         """
         Returns True if the terrain list appears to be ready.
         """
+
         return len(self.terrain_list) > 0
     
     def is_elevation_list_ready(self):
         """
         Returns True if the elevation list appears to be ready.
         """
+
         return len(self.elevation_list) > 0
         
     def set_hex_terrain(self, x, y, terrain_char):
         """
         Sets a hex's terrain character.
         """
+
         if not self.is_terrain_list_ready():
             raise TerrainListNotSet
         
@@ -108,6 +99,7 @@ class MuxMap(object):
         """
         Sets a hex's elevation.
         """
+
         if not self.is_elevation_list_ready():
             raise ElevationListNotSet
         
@@ -126,6 +118,7 @@ class MuxMap(object):
         """
         Sets a hex's terrain and elevation at the same time.
         """
+
         self.set_hex_terrain(x, y, terrain)
         self.set_hex_elevation(x, y, elevation)
     
@@ -133,6 +126,7 @@ class MuxMap(object):
         """
         Returns a hex's terrain character given an X and Y value.
         """
+
         if not self.is_terrain_list_ready():
             raise TerrainListNotSet
         
@@ -150,12 +144,13 @@ class MuxMap(object):
         lowercase. This is useful for retrieving graphical tiles by filename
         and other similar things.
         """
+
         terrain = self.get_hex_terrain(x, y)
         terrain_name = TERRAIN_NAMES.get(terrain, "Unknown")
         
         if safe_formatted:
             # Strip spaces and lowercase it.
-            terrain_name = terrain_name.lower().replace(' ','')
+            terrain_name = terrain_name.lower().replace(' ', '')
             
         return terrain_name
         
@@ -163,6 +158,7 @@ class MuxMap(object):
         """
         Returns a hex's elevation given an X and Y value.
         """
+
         if not self.is_elevation_list_ready():
             raise ElevationListNotSet
         
@@ -175,8 +171,8 @@ class MuxMap(object):
         """
         Returns a (terrain, elevation) tuple.
         """
-        return (self.get_hex_terrain(x,y),
-                self.get_hex_elevation(x,y))
+
+        return self.get_hex_terrain(x, y), self.get_hex_elevation(x, y)
     
     def get_viewport(self, x, y, view_width, view_height):
         """
@@ -189,6 +185,7 @@ class MuxMap(object):
         view_width: (int) How wide the viewport should be (even number).
         view_height: (int) How high the viewport should be (even number).
         """
+
         try:
             # Do this for the purpose of checking hex validity.
             self.terrain_list[y][x]
@@ -229,4 +226,4 @@ class MuxMap(object):
         #print "CENTER COORD", x, y
         #print "UPPER COORD", upper_x, upper_y
         
-        return (upper_x, upper_y)
+        return upper_x, upper_y
