@@ -52,8 +52,7 @@ class MuxMapImage(object):
             raise InvalidImageMode(mode_lower)
         else:
             self.mode = mode_lower
-            if self.debug:
-                print "Imaging mode set to: %s" % self.mode
+            logger.debug("Imaging mode set to: %s", self.mode)
    
     def handle_resizing(self, min_dimension, max_dimension):
         """
@@ -87,9 +86,7 @@ class MuxMapImage(object):
             logger.debug('Over-sized, re-size needed: (%d/%d) = %f',
                 max_dimension, largest_dim, resize_mul)
             self.resize_img(resize_mul, resize_filter)
-        else:
-            if self.debug:
-                print 'No re-sizing necessary.'
+
         return resize_mul
 
     def resize_img(self, resize_mul, resize_filter):
@@ -98,12 +95,11 @@ class MuxMapImage(object):
         """
         map_width = self.map_img.size[0]
         map_height = self.map_img.size[1]
-        
-        if self.debug:
-            print 'Re-Size Mul: %f' % resize_mul
-            print 'Before  Width: %d  Height: %d' % (map_width, map_height)
-            print 'After   Width: %d  Height: %d' % (map_width * resize_mul, 
-                                                map_height * resize_mul)
+
+        logger.debug('Re-Size Mul: %f', resize_mul)
+        logger.debug('Before  Width: %d  Height: %d', map_width, map_height)
+        logger.debug('After   Width: %d  Height: %d',
+                     map_width * resize_mul, map_height * resize_mul)
 
         # Re-size the image with the appropriate size multiplier.     
         self.map_img = self.map_img.resize(
@@ -115,7 +111,8 @@ class MuxMapImage(object):
         Stub to alert people trying to use this class. MuxMapImage is not
         meant to be used directly, and future sub-classes need a fall-through.
         """
-        print "Implement a render_hexes() method for this class."
+
+        raise NotImplementedError()
 
     def generate_map(self, min_dimension=None, max_dimension=None):
         """
@@ -132,9 +129,6 @@ class MuxMapImage(object):
         # Do any re-sizing needed.
         if min_dimension or max_dimension:
             self.handle_resizing(min_dimension, max_dimension)
-            
-        if self.debug:
-            print 'Image generation complete.'
 
     def get_terrain_rgb(self, terrain, elev):
         """
@@ -171,8 +165,6 @@ class PixelHexMapImage(MuxMapImage):
         Over-rides the MuxMapImage stub routine to do our one pixel per hex
         rendering.
         """
-        if self.debug:
-            print "Rendering hexes..."
         
         # Shortcuts for readability.
         map_width = self.map.get_map_width()
@@ -184,9 +176,6 @@ class PixelHexMapImage(MuxMapImage):
                 elev = self.map.get_hex_elevation(x, y)
                 rgb = self.get_terrain_rgb(terrain, elev)
                 self.map_img.putpixel((x, y), rgb)
-                
-        if self.debug:
-            print "Hex rendering completed."
 
 
 class HexMapImage(MuxMapImage):
@@ -246,9 +235,6 @@ class HexMapImage(MuxMapImage):
         # Do any re-sizing needed.
         if min_dimension or max_dimension:
             self.handle_resizing(min_dimension, max_dimension)
-            
-        if self.debug:
-            print 'Image generation complete.'
             
     def calc_upper_left_pixel(self, x, y):
         """

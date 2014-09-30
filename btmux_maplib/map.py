@@ -1,5 +1,10 @@
-from btmux_maplib.exceptions import *
+import logging
+
 from btmux_maplib.constants import TERRAIN_NAMES
+from btmux_maplib.exceptions import MapDimsNotSet, TerrainListNotSet, InvalidHex, \
+    ElevationListNotSet, ViewportHeightTooBig, ViewportWidthTooBig
+
+logger = logging.getLogger(__name__)
 
 
 class MuxMap(object):
@@ -202,28 +207,21 @@ class MuxMap(object):
         
         x_offset = 0
         if x - half_w < 0:
-            print "* Overflowed X bounds: Negative"
+            logger.warning("* Overflowed X bounds: Negative")
             x_offset = x - half_w
         elif (x + half_w) > self.get_map_width():
-            print "* Overflowed X bounds: Positive"
+            logger.warning("* Overflowed X bounds: Positive")
             x_offset = (self.get_map_width() - (x + half_w) - 1) * -1
             
         y_offset = 0
         if y - half_h < 0:
-            print "* Overflowed Y bounds: Negative"
+            logger.warning("* Overflowed Y bounds: Negative")
             y_offset = y - half_w
         elif (y + half_h) > self.get_map_height():
-            print "* Overflowed Y bounds: Positive"
+            logger.warning("* Overflowed Y bounds: Positive")
             y_offset = (self.get_map_height() - (y + half_h) - 1) * -1
             
         upper_x = x - x_offset - half_w
         upper_y = y - y_offset - half_h
-        
-        #print "WIDTH", view_width
-        #print "HEIGHT", view_height
-        #print "X OFFSET", x_offset
-        #print "Y OFFSET", y_offset
-        #print "CENTER COORD", x, y
-        #print "UPPER COORD", upper_x, upper_y
         
         return upper_x, upper_y
