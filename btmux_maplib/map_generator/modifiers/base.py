@@ -1,11 +1,6 @@
-"""
-Map generator base classes and other foundational stuff.
-"""
+class BaseMapModifier(object):
 
-
-class BaseMapGenerator(object):
-
-    def generate_map(self):
+    def modify_map(self, seed_val, mmap):
         """
         Override this in your sub-class.
 
