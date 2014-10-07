@@ -14,8 +14,9 @@ from btmux_maplib.map_generator.heightmap import SimplexHeightHeightMap
 # fill in forests, mountains, cities, roads, and whatever else you'd like to
 # add to the barren map.
 gen = MapGenerator(
-    dimensions=(80, 80),
-    seed_val=random.randint(0, 99999999),
+    dimensions=(100, 100),
+    seed_val=random.random(),
+    #seed_val=0.0161681496718,
     heightmap=SimplexHeightHeightMap(),
     modifiers=[],
 )

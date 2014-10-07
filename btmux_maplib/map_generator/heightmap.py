@@ -1,4 +1,5 @@
 import logging
+import math
 
 import noise
 
@@ -33,16 +34,20 @@ class SimplexHeightHeightMap(BaseHeightMap):
     heightmap. All hexes will either be Clear or Water, based on elevation.
     """
 
-    def __init__(self, frequency=90.0, octaves=1):
+    def __init__(self, frequency=100.0, octaves=3):
         self.frequency = frequency
         self.octaves = octaves
         
     def _val_to_elev(self, value):
-        val = value + 1.0
-        val /= 0.2
-        return int(val)
+        # TODO: This is hacky.
+        value += 0.4
+        # TODO: This division by 0.2 determines how high, low, and how
+        # smooth the map is. Not sure this is the way to go.
+        elev = math.floor(value / 0.2)
+        return min(9, max(-9, elev))
         
     def generate_height_map(self, dimensions, seed_val):
+
         mmap = MuxMap(dimensions=dimensions)
         min_val = 0
         max_val = 0
@@ -52,7 +57,7 @@ class SimplexHeightHeightMap(BaseHeightMap):
                     x=x / self.frequency,
                     y=y / self.frequency,
                     z=seed_val,
-                    octaves=self.octaves
+                    octaves=self.octaves,
                 )
                 if h < min_val:
                     min_val = h
@@ -63,4 +68,6 @@ class SimplexHeightHeightMap(BaseHeightMap):
                 mmap.set_hex_elevation(x, y, elev)
                 #print "N%d" %self.map.get_hex_elevation(x, y, )
                 #time.sleep(0.01)
+        print "SEED", seed_val
+        print "MIN", min_val, "MAX", max_val
         return mmap
