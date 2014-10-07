@@ -12,8 +12,8 @@ class MapGenerator(object):
         """
         :param tuple dimensions: A (width, height) tuple that determines the
             dimensions of the generated map.
-        :param int seed_val: An integer value that serves as the map's seed.
-            This gets passed to the heightmap and all modifiers.
+        :param float seed_val: An value between 0.0 and 1.0 that serves as the
+            map's seed. This gets passed to the heightmap and all modifiers.
         :param heightmap: One of the BaseHeightMap sub-classe instances.
             This establishes the basic topology of the map.
         :param list modifiers: A list of BaseMapModifier sub-class instances.
