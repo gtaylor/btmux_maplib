@@ -32,5 +32,5 @@ class MapGenerator(object):
 
         mmap = self.heightmap.generate_height_map(self.dimensions, self.seed_val)
         for modifier in self.modifiers:
-            modifier.modify_map(mmap, self.seed_val)
+            modifier.modify_map(self.seed_val, mmap)
         return mmap

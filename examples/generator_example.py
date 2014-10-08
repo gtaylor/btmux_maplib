@@ -7,6 +7,8 @@ import random
 from btmux_maplib.img_generator.mapimage import PixelHexMapImage
 from btmux_maplib.map_generator.map_generator import MapGenerator
 from btmux_maplib.map_generator.heightmap import SimplexHeightHeightMap
+from btmux_maplib.map_generator.modifiers.water_limiter import \
+    WaterLimiterModifier
 
 
 # The MapGenerator groups together a heightmap (which creates the basic
@@ -18,7 +20,9 @@ gen = MapGenerator(
     seed_val=random.random(),
     #seed_val=0.0161681496718,
     heightmap=SimplexHeightHeightMap(),
-    modifiers=[],
+    modifiers=[
+        WaterLimiterModifier(max_water_depth=0),
+    ],
 )
 new_map = gen.generate_map()
 

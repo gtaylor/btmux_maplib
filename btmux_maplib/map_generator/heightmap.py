@@ -39,7 +39,7 @@ class SimplexHeightHeightMap(BaseHeightMap):
     heightmap. All hexes will either be Clear or Water, based on elevation.
     """
 
-    def __init__(self, frequency=100.0, octaves=3, watertable_mod=-0.5):
+    def __init__(self, frequency=100.0, octaves=3, watertable_mod=-0.3):
         """
 
         :keyword float frequency: Adjusts the frequency of the simplex noise.
@@ -49,7 +49,6 @@ class SimplexHeightHeightMap(BaseHeightMap):
         :keyword float watertable_mod: A value between -1.0 and 1.0. This
             causes the water table to lower (lower numbers) or rise (higher
             numbers). The default favors more land mass than water.
-        :return:
         """
 
         self.frequency = frequency
@@ -87,7 +86,7 @@ class SimplexHeightHeightMap(BaseHeightMap):
         else:
             elev = math.floor(value / land_elev_divisor)
 
-        return min(9, max(-9, elev))
+        return min(9, max(-9, int(elev)))
         
     def generate_height_map(self, dimensions, seed_val):
         """
