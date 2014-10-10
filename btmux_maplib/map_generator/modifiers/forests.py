@@ -58,4 +58,4 @@ class SimplexForestModifier(BaseMapModifier):
                 if h > self.heavy_forest_thresh:
                     mmap.set_hex_terrain(x, y, '"')
                 elif h > self.light_forest_thresh:
-                    mmap.set_hex_terrain(x, y, "'")
+                    mmap.set_hex_terrain(x, y, '`')
