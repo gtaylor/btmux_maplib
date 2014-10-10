@@ -14,3 +14,19 @@ class BaseMapModifier(object):
         """
 
         raise NotImplementedError()
+
+    def _get_modified_seed_val(self, seed_val, seed_mul):
+        """
+        If you want people to be able to stack multiple calls of the modifier,
+        but with different seed values, this will calculate said modified seed.
+
+        :param float seed_val: The seed value to modify.
+        :type seed_mul: float or None
+        :param seed_mul: Multiply the seed by this. If None, don't modify seed.
+        :rtype: float
+        :returns: A modified seed value.
+        """
+
+        if not seed_mul:
+            return seed_val
+        return seed_val * seed_mul

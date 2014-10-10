@@ -39,7 +39,7 @@ class SimplexHeightHeightMap(BaseHeightMap):
     heightmap. All hexes will either be Clear or Water, based on elevation.
     """
 
-    def __init__(self, frequency=100.0, octaves=3, watertable_mod=-0.3):
+    def __init__(self, frequency=60.0, octaves=3, watertable_mod=-0.4):
         """
 
         :keyword float frequency: Adjusts the frequency of the simplex noise.
