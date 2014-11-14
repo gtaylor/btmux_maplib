@@ -31,7 +31,7 @@ setup(
     packages=[
         'btmux_maplib',
         'btmux_maplib.img_generator',
-        'btmux_maplib.map_generator',
+        'btmux_maplib.map_generator', 'btmux_maplib.map_generator.modifiers',
         'btmux_maplib.map_parser',
         'btmux_maplib.map_exporters'],
     platforms='Platform Independent',
