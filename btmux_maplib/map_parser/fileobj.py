@@ -47,7 +47,7 @@ class MapFileObjParser(object):
         return self.map_string[y + 1][x * 2]
     
     def get_hex_elevation(self, x, y):
-        return self.map_string[y + 1][(x * 2) + 1]
+        return int(self.map_string[y + 1][(x * 2) + 1])
     
     def get_muxmap(self):
         """
